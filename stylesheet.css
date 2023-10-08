@@ -1,0 +1,18 @@
+h1 {
+
+    font-size: 64px;
+    font-style: italic;
+    
+    }
+    
+    p {
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    button {
+        color: black;
+        font-size: 12px;
+        font-weight: bold;
+
+    }
