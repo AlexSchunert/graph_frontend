@@ -21,8 +21,11 @@ async function handle_file_input(input, new_div) {
 
     try {
         const file_content = await load_txt_file(files[0]);
+        const host = window.location.host;
+        const host_textfile_route = "http://" + host + "/text_file"
         console.log(file_content)
-        fetch("/", {
+        //console.log("http://" + host + "/text_file");
+        fetch(host_textfile_route, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
