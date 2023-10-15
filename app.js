@@ -22,11 +22,23 @@ async function handle_file_input(input, new_div) {
     try {
         const file_content = await load_txt_file(files[0]);
         console.log(file_content)
-
+        fetch("/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(file_content),
+        })
+            .then(response => response.json()) // Assuming the server responds with JSON
+            .then(data => {
+                console.log('Response from server:', data);
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+            });
     }
     catch (error) {
         console.error(error);
-
     }
 
     /*
