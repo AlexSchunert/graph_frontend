@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "d3": "^7.8.5"
+    "d3": "^7.8.5",
+    "graphology": "^0.25.4",
+    "graphology-gexf": "^0.11.0"
   }
 }

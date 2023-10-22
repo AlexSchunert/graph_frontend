@@ -1,3 +1,4 @@
+//import { Graph } from './node_modules/graphology/dist/graphology.mjs';
 //document.body.onload = addElement;
 
 async function import_graphml_file() {
@@ -72,18 +73,22 @@ var ctx = canvas.getContext("2d");
 var circles = [];
 var lines = [];
 
+// Graph structure
+//const graph = new Graph();
+
 // Variable to keep track of the circle currently being dragged
 var selectedCircle = null;
 var startCircleSelected = null;
 var endCircleSelected = null;
 
 // Function to create a new circle
-function createCircle(x, y) {
+function createCircle(id, x, y) {
     return {
         x: x,
         y: y,
         radius: 20,
-        color: "#777777"
+        id: id,
+        color: "#CCCCCC"
     };
 }
 
@@ -94,6 +99,20 @@ function createLine(start, end) {
         color: "#AAAAAA"
     }
 }
+
+/*
+function updateGraph() {
+
+    circles.forEach(circle => {
+        graph.addNode(circle.id);
+    });
+
+    lines.forEach(line => {
+        graph.addEdge(line.start.id, line.end.id);
+    });
+
+}
+*/
 
 // Function to generate a random color
 /*
@@ -113,6 +132,15 @@ function drawCircle(circle) {
     ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
     ctx.fillStyle = circle.color;
     ctx.fill();
+
+    // Add id as text 
+    ctx.fillStyle = "black";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const text = circle.id.toString();
+    ctx.fillText(text, circle.x, circle.y);
+
     ctx.closePath();
 }
 
@@ -145,7 +173,8 @@ function clearGraph() {
 
 
 function addNewCircle(x, y) {
-    var newCircle = createCircle(x, y);
+    const id = circles.length;
+    var newCircle = createCircle(id, x, y);
     circles.push(newCircle);
     drawCircle(newCircle);
 }
@@ -227,6 +256,7 @@ function onMouseUp(event) {
     startCircleSelected = null;
     endCircleSelected = null;
     reDrawCanvas();
+    //updateGraph();
 }
 
 
