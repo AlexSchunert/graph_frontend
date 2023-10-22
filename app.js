@@ -1,4 +1,4 @@
-//import { Graph } from './node_modules/graphology/dist/graphology.mjs';
+import { Graph } from 'graphology';
 //document.body.onload = addElement;
 
 async function import_graphml_file() {
@@ -9,6 +9,7 @@ async function import_graphml_file() {
     input.onchange = _ => handle_file_input(input, new_div);
     input.click();
 }
+window.import_graphml_file = import_graphml_file
 
 async function handle_file_input(input, new_div) {
     // you can use this method to get file and perform respective operations
@@ -74,7 +75,7 @@ var circles = [];
 var lines = [];
 
 // Graph structure
-//const graph = new Graph();
+const graph = new Graph();
 
 // Variable to keep track of the circle currently being dragged
 var selectedCircle = null;
@@ -100,7 +101,7 @@ function createLine(start, end) {
     }
 }
 
-/*
+
 function updateGraph() {
 
     circles.forEach(circle => {
@@ -112,7 +113,7 @@ function updateGraph() {
     });
 
 }
-*/
+
 
 // Function to generate a random color
 /*
@@ -169,6 +170,7 @@ function clearGraph() {
     clearCanvas();
 
 }
+window.clearGraph = clearGraph
 
 
 
@@ -256,7 +258,9 @@ function onMouseUp(event) {
     startCircleSelected = null;
     endCircleSelected = null;
     reDrawCanvas();
-    //updateGraph();
+    updateGraph();
+    console.log(graph)
+
 }
 
 

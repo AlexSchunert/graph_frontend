@@ -3,5 +3,12 @@
     "d3": "^7.8.5",
     "graphology": "^0.25.4",
     "graphology-gexf": "^0.11.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "scripts": {
+    "build": "webpack"
   }
 }
