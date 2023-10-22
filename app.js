@@ -1,4 +1,6 @@
 import { Graph } from 'graphology';
+import { write } from 'graphology-gexf';
+
 //document.body.onload = addElement;
 
 async function import_graphml_file() {
@@ -73,6 +75,8 @@ var ctx = canvas.getContext("2d");
 // Array to store information about the circles
 var circles = [];
 var lines = [];
+var circlesToAddToGraph = [];
+var linesToAddToGraph = [];
 
 // Graph structure
 const graph = new Graph();
@@ -104,16 +108,42 @@ function createLine(start, end) {
 
 function updateGraph() {
 
-    circles.forEach(circle => {
+    //var gefx = require('graphology-gexf');
+    circlesToAddToGraph.forEach(circle => {
         graph.addNode(circle.id);
     });
 
-    lines.forEach(line => {
-        graph.addEdge(line.start.id, line.end.id);
+    linesToAddToGraph.forEach(line => {
+        if (!checkEdgeIsDuplicate(line)) {
+            graph.addEdge(line.start.id, line.end.id);
+        }
+
     });
 
+    linesToAddToGraph = [];
+    circlesToAddToGraph = [];
+
+    //const graphMLString = exportToGraphML(graph);
+    const gexfString = write(graph);
+    console.log(gexfString);
 }
 
+function checkEdgeIsDuplicate(line) {
+
+    var isDuplicate = false;
+
+    graph.forEachEdge((edge, attributes, source, target) => {
+
+        if ((source == line.start.id && target == line.end.id) ||
+            target == line.start.id && source == line.end.id) {
+            isDuplicate = true;
+        }
+
+        //console.log(`Edge ${source} -> ${target} with attributes:`, attributes);
+    });
+
+    return isDuplicate;
+}
 
 // Function to generate a random color
 /*
@@ -168,7 +198,7 @@ function clearGraph() {
     circles = [];
     lines = [];
     clearCanvas();
-
+    graph.clear();
 }
 window.clearGraph = clearGraph
 
@@ -178,6 +208,7 @@ function addNewCircle(x, y) {
     const id = circles.length;
     var newCircle = createCircle(id, x, y);
     circles.push(newCircle);
+    circlesToAddToGraph.push(newCircle);
     drawCircle(newCircle);
 }
 
@@ -248,9 +279,9 @@ function onMouseUp(event) {
         if (endCircleSelected != null &&
             endCircleSelected.x != startCircleSelected.x &&
             endCircleSelected.y != startCircleSelected.y) {
-
-            lines.push(createLine(startCircleSelected, endCircleSelected))
-
+            var newLine = createLine(startCircleSelected, endCircleSelected);
+            lines.push(newLine);
+            linesToAddToGraph.push(newLine);
         }
     }
 
