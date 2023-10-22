@@ -62,88 +62,181 @@ async function load_txt_file(file) {
     })
 }
 
-// Create an empty graph
-var nodes = [];
-var links = [];
+// JavaScript for the interactive canvas
 
-// Initialize the D3.js force simulation
-var width = 600;
-var height = 400;
+// Get a reference to the canvas element and its 2D context
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
 
-var svg = d3.select("#graph-container")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height);
+// Array to store information about the circles
+var circles = [];
+var lines = [];
 
-var simulation = d3.forceSimulation(nodes)
-    .force("charge", d3.forceManyBody().strength(-300))
-    .force("link", d3.forceLink(links).distance(100))
-    .force("center", d3.forceCenter(600, 400));
-//.force("center", d3.forceCenter(width / 2, height / 2));
+// Variable to keep track of the circle currently being dragged
+var selectedCircle = null;
+var startCircleSelected = null;
+var endCircleSelected = null;
 
-// Create functions to add nodes and edges
-d3.select("#add-node").on("click", addNode);
-d3.select("#add-edge").on("click", addEdge);
-
-function addNode() {
-    nodes.push({ id: nodes.length });
-    updateGraph();
+// Function to create a new circle
+function createCircle(x, y) {
+    return {
+        x: x,
+        y: y,
+        radius: 20,
+        color: "#777777"
+    };
 }
 
-function addEdge() {
-    var node1 = parseInt(document.getElementById("node1").value);
-    var node2 = parseInt(document.getElementById("node2").value);
+function createLine(start, end) {
+    return {
+        start: start,
+        end: end,
+        color: "#AAAAAA"
+    }
+}
 
-    if (isNaN(node1) || isNaN(node2) || node1 === node2) {
-        alert("Invalid node IDs. Please enter valid IDs.");
-        return;
+// Function to generate a random color
+/*
+function getRandomColor() {
+    var letters = "0123456789ABCDEF";
+    var color = "#";
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+*/
+
+// Function to draw a circle
+function drawCircle(circle) {
+    ctx.beginPath();
+    ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+    ctx.fillStyle = circle.color;
+    ctx.fill();
+    ctx.closePath();
+}
+
+function drawLine(line) {
+    ctx.moveTo(line.start.x, line.start.y); // Move the "pen" to the starting point
+    ctx.lineTo(line.end.x, line.end.y); // Draw a line to the ending point
+    ctx.stroke();
+    ctx.closePath();
+}
+
+// Redraw canvas 
+function reDrawCanvas() {
+    clearCanvas();
+    circles.forEach(drawCircle);
+    lines.forEach(drawLine);
+}
+
+// Function to clear the canvas
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function clearGraph() {
+    circles = [];
+    lines = [];
+    clearCanvas();
+
+}
+
+
+
+function addNewCircle(x, y) {
+    var newCircle = createCircle(x, y);
+    circles.push(newCircle);
+    drawCircle(newCircle);
+}
+
+// Determines mouse over circle 
+function mouseInCircle(circles, x, y) {
+    // Check if the mouse click is inside any circle
+    for (var i = circles.length - 1; i >= 0; i--) {
+        var circle = circles[i];
+        var dx = x - circle.x;
+        var dy = y - circle.y;
+        if (dx * dx + dy * dy <= circle.radius * circle.radius) {
+            // Start dragging this circle
+            selectedCircle = circle;
+            return true;
+        }
+    }
+    return false;
+
+}
+
+
+// Function to handle mouse down events
+function onMouseDown(event) {
+    var x = event.offsetX;
+    var y = event.offsetY;
+    var circle_selected = false;
+
+    if (event.button == 0) {
+        circle_selected = mouseInCircle(circles, x, y);
+        // If no circle is clicked, create a new one
+        if (circle_selected == false) {
+            addNewCircle(x, y);
+        }
+    }
+    else if (event.button == 2) {
+        circle_selected = mouseInCircle(circles, x, y);
+        startCircleSelected = selectedCircle;
+        selectedCircle = null;
+
     }
 
-    links.push({ source: node1, target: node2 });
-    updateGraph();
 }
 
-function updateGraph() {
-    var link = svg.selectAll(".link")
-        .data(links)
-        .enter()
-        .append("line")
-        .attr("class", "link");
+// Function to handle mouse move events
+function onMouseMove(event) {
 
-    var node = svg.selectAll(".node")
-        .data(nodes)
-        .enter()
-        .append("circle")
-        .attr("class", "node")
-        .attr("r", 30)
-        .style("fill", "orange")
-        .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended));
+    if (selectedCircle) {
+        var x = event.offsetX;
+        var y = event.offsetY;
+        selectedCircle.x = x;
+        selectedCircle.y = y;
 
-    simulation.nodes(nodes);
-    simulation.force("link").links(links);
-    simulation.alpha(1).restart();
+        // Redraw the canvas
+        reDrawCanvas();
 
-    node.exit().remove();
-    link.exit().remove();
+    }
 }
 
-function dragstarted(d) {
-    if (!d3.event.active) simulation.alpha(1).restart();
-    d.fx = d.x;
-    d.fy = d.y;
+// Function to handle mouse up events
+function onMouseUp(event) {
+
+    if (event.button == 2 && startCircleSelected != null) {
+        var x = event.offsetX;
+        var y = event.offsetY;
+        mouseInCircle(circles, x, y)
+        endCircleSelected = selectedCircle;
+
+        if (endCircleSelected != null &&
+            endCircleSelected.x != startCircleSelected.x &&
+            endCircleSelected.y != startCircleSelected.y) {
+
+            lines.push(createLine(startCircleSelected, endCircleSelected))
+
+        }
+    }
+
+    selectedCircle = null;
+    startCircleSelected = null;
+    endCircleSelected = null;
+    reDrawCanvas();
 }
 
-function dragged(d) {
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
-}
 
-function dragended(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
-}
+
+// Attach event listeners
+canvas.addEventListener("mousedown", onMouseDown);
+canvas.addEventListener("mousemove", onMouseMove);
+canvas.addEventListener("mouseup", onMouseUp);
+canvas.addEventListener("contextmenu", function (event) {
+    event.preventDefault();
+});
+
 

@@ -11,17 +11,18 @@
 <body>
     <h1>Graph-Lib Frontend</h1>
     <button onclick="import_graphml_file()">Select File</button>
+    <div></div>
+    <hr>
+    </hr>
+    <div></div>
 
-    <div id="graph-container"></div>
-    <button id="add-node">Add Node</button>
-    <button id="add-edge">Add Edge</button>
-    <input id="node1" placeholder="Node 1">
-    <input id="node2" placeholder="Node 2">
+    <canvas id="canvas" width="600" height="400"></canvas>
+    <div></div>
+    <button onclick="clearGraph()">Clear</button>
 
 
 </body>
 
-<script src="node_modules/d3/dist/d3.js"></script>
 <script src="app.js"></script>
 
 </html>
